@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek AI对话助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            height: 95vh;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .ai-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #4f46e5;
+            font-weight: bold;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            background: #f8fafc;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 18px 22px;
+            border-radius: 20px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            margin-left: auto;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .user-icon, .ai-icon-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .user-icon {
+            background: white;
+            color: #4f46e5;
+        }
+
+        .ai-icon-small {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .input-container {
+            padding: 25px 30px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 15px;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 18px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 16px;
+            resize: none;
+            min-height: 60px;
+            font-family: inherit;
+        }
+
+        #messageInput:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        #sendButton {
+            padding: 0 30px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        #sendButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .welcome-message h2 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .input-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span class="ai-icon">AI</span>
+                DeepSeek AI对话助手
+            </h1>
+            <p>智能、友好的AI对话体验</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <h2>?? 欢迎使用DeepSeek AI助手</h2>
+                <p>我是您的智能助手，随时准备为您提供帮助！</p>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <textarea 
+                id="messageInput" 
+                placeholder="请输入您的问题...（按Enter发送，Shift+Enter换行）"
+                rows="3"
+            ></textarea>
+            <button id="sendButton">
+                <span>发送</span>
+                <span>??</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 修复编码问题 - 使用正确的字符
+        const aiResponses = {
+            greetings: [
+                "您好！我是DeepSeek，很高兴为您服务！有什么我可以帮助您的吗？",
+                "?? 欢迎！我是您的AI助手，随时准备回答您的问题。",
+                "您好！我是DeepSeek AI助手。请问有什么可以为您效劳的？"
+            ],
+            introductions: [
+                "我是DeepSeek，一个先进的AI助手。我擅长回答问题、提供建议、协助学习和工作等。",
+                "我是由深度求索公司开发的AI助手，可以帮您处理各种问题和任务。",
+                "作为AI助手，我拥有广泛的知识，可以回答各种问题并提供帮助。"
+            ],
+            default: [
+                "这是一个很好的问题！让我为您解答...",
+                "感谢您的提问！这是我对此的看法：",
+                "我理解您的问题，让我为您详细解释一下。"
+            ]
+        };
+
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // 发送消息
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // 添加用户消息
+            addMessage(message, 'user');
+            messageInput.value = '';
+            
+            // AI回复
+            setTimeout(() => {
+                const aiResponse = generateAIResponse(message);
+                addMessage(aiResponse, 'ai');
+            }, 800);
+        }
+
+        // 添加消息到界面
+        function addMessage(content, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const time = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const senderName = sender === 'user' ? '您' : 'DeepSeek';
+            const senderIcon = sender === 'user' ? 
+                '<div class="user-icon">??</div>' : 
+                '<div class="ai-icon-small">AI</div>';
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    ${senderIcon}
+                    <span>${senderName}</span>
+                </div>
+                <div class="message-content">${content}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            // 移除欢迎信息
+            const welcomeMessage = document.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // 滚动到底部
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
+
+        // 生成AI回复
+        function generateAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            if (message.includes('你好') || message.includes('hi')) {
+                return aiResponses.greetings[0];
+            } else if (message.includes('你是谁')) {
+                return aiResponses.introductions[0];
+            } else if (message.includes('功能')) {
+                return "我可以回答各种问题，协助学习、工作，提供建议和信息查询等服务。";
+            } else if (message.includes('帮助')) {
+                return "请告诉我您需要什么帮助？我可以协助您解决问题、提供信息或进行对话。";
+            }
+            
+            return aiResponses.default[Math.floor(Math.random() * aiResponses.default.length)];
+        }
+
+        // 事件监听
+        sendButton.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 初始欢迎消息
+        setTimeout(() => {
+            const welcomeResponse = "您好！我是DeepSeek AI助手，很高兴为您服务！有什么问题尽管问我吧！";
+            addMessage(welcomeResponse, 'ai');
+        }, 1000);
+    </script>
+</body>
+</html>
